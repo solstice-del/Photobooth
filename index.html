@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Our Little Photobooth</title>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;500&display=swap');
+
+
+/* =========================
+   BASIC
+========================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background: #eee9df;
+    color: #171717;
+    font-family: "DM Mono", monospace;
+    overflow-x: hidden;
+}
+
+
+/* =========================
+   OPENING SCREEN
+========================= */
+
+.opening {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+
+    background: #171717;
+    color: #eee9df;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    transition:
+        opacity 0.8s ease,
+        visibility 0.8s ease;
+}
+
+.opening.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.opening-content {
+    width: 90%;
+    max-width: 430px;
+}
+
+.small-title {
+    font-size: 10px;
+    letter-spacing: 4px;
+    opacity: 0.55;
+    margin-bottom: 26px;
+}
+
+.opening h1 {
+    font-family: "Playfair Display", serif;
+
+    font-size: clamp(44px, 12vw, 72px);
+
+    font-weight: 400;
+    line-height: 0.94;
+
+    margin-bottom: 28px;
+}
+
+.opening p {
+    font-size: 10px;
+    line-height: 1.9;
+    opacity: 0.65;
+
+    margin-bottom: 38px;
+}
+
+.enter-btn {
+    border: 1px solid #eee9df;
+    background: transparent;
+
+    color: #eee9df;
+
+    padding: 13px 29px;
+
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease;
+}
+
+.enter-btn:hover {
+    background: #eee9df;
+    color: #171717;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+.main {
+    width: 100%;
+    max-width: 650px;
+
+    margin: auto;
+
+    padding:
+        48px 20px
+        30px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    text-align: center;
+    margin-bottom: 38px;
+}
+
+.header span {
+    font-size: 9px;
+    letter-spacing: 3.5px;
+
+    opacity: 0.5;
+}
+
+.header h2 {
+    font-family: "Playfair Display", serif;
+
+    font-size: 36px;
+    font-weight: 400;
+
+    margin-top: 12px;
+}
+
+
+/* =========================
+   PHOTO
+========================= */
+
+.photo-wrapper {
+    background: #171717;
+
+    padding: 12px;
+
+    box-shadow:
+        8px 8px 0 #c9c1b4;
+
+    transition:
+        transform 0.4s ease;
+}
+
+.photo-wrapper:hover {
+    transform: rotate(-0.7deg);
+}
+
+.photo-frame {
+    position: relative;
+
+    width: 100%;
+    aspect-ratio: 4 / 5;
+
+    overflow: hidden;
+
+    background: #252525;
+}
+
+.photo-frame img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+
+    transition:
+        opacity 0.35s ease,
+        transform 0.5s ease;
+}
+
+.photo-frame img.fade {
+    opacity: 0;
+    transform: scale(1.025);
+}
+
+.photo-number {
+    position: absolute;
+
+    right: 12px;
+    bottom: 12px;
+
+    background: rgba(0, 0, 0, 0.62);
+
+    color: white;
+
+    padding: 6px 9px;
+
+    font-size: 8px;
+    letter-spacing: 1px;
+}
+
+
+/* =========================
+   CAPTION
+========================= */
+
+.caption {
+    color: #eee9df;
+    background: #171717;
+
+    padding:
+        17px
+        10px
+        9px;
+
+    text-align: center;
+
+    font-family: "Playfair Display", serif;
+
+    font-size: 17px;
+    line-height: 1.45;
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.navigation {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin:
+        29px
+        2px
+        58px;
+}
+
+.nav-btn {
+    border: none;
+    background: transparent;
+
+    padding: 8px 0;
+
+    font-family: inherit;
+
+    font-size: 9px;
+    letter-spacing: 1.7px;
+
+    color: #171717;
+
+    cursor: pointer;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+
+.nav-btn:hover {
+    background: transparent;
+    color: #171717;
+
+    opacity: 0.45;
+}
+
+.prev-btn:hover {
+    transform: translateX(-4px);
+}
+
+.next-btn:hover {
+    transform: translateX(4px);
+}
+
+.counter {
+    font-size: 9px;
+    letter-spacing: 2px;
+
+    opacity: 0.6;
+}
+
+
+/* =========================
+   FILM STRIP
+========================= */
+
+.section-title {
+    text-align: center;
+
+    font-size: 9px;
+    letter-spacing: 4px;
+
+    opacity: 0.5;
+
+    margin-bottom: 20px;
+}
+
+.film-strip {
+    display: flex;
+
+    gap: 10px;
+
+    overflow-x: auto;
+
+    padding:
+        15px 10px;
+
+    background: #171717;
+
+    scrollbar-width: none;
+}
+
+.film-strip::-webkit-scrollbar {
+    display: none;
+}
+
+.film-photo {
+    flex: 0 0 105px;
+
+    height: 135px;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    opacity: 0.55;
+
+    border: 2px solid transparent;
+
+    transition:
+        opacity 0.3s ease,
+        border 0.3s ease,
+        transform 0.3s ease;
+}
+
+.film-photo:hover {
+    opacity: 0.9;
+}
+
+.film-photo.active {
+    opacity: 1;
+
+    border-color: #eee9df;
+
+    transform: translateY(-2px);
+}
+
+.film-photo img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+
+/* =========================
+   ENDING
+========================= */
+
+.ending {
+    margin-top: 70px;
+
+    background: #171717;
+
+    color: #eee9df;
+
+    padding:
+        58px 25px;
+
+    text-align: center;
+}
+
+.ending span {
+    font-size: 9px;
+    letter-spacing: 4px;
+
+    opacity: 0.5;
+}
+
+.ending h3 {
+    font-family: "Playfair Display", serif;
+
+    font-size: 36px;
+    font-weight: 400;
+
+    margin:
+        20px 0;
+}
+
+.ending p {
+    max-width: 400px;
+
+    margin: auto;
+
+    font-size: 10px;
+    line-height: 2;
+
+    opacity: 0.65;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    text-align: center;
+
+    padding:
+        35px 0
+        20px;
+
+    font-size: 8px;
+
+    letter-spacing: 2px;
+
+    opacity: 0.4;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 480px) {
+
+    .main {
+        padding:
+            35px 17px
+            25px;
+    }
+
+    .header h2 {
+        font-size: 30px;
+    }
+
+    .opening h1 {
+        font-size: 49px;
+    }
+
+    .caption {
+        font-size: 16px;
+    }
+
+    .photo-wrapper {
+        box-shadow:
+            5px 5px 0 #c9c1b4;
+    }
+
+    .film-photo {
+        flex-basis: 95px;
+        height: 125px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     OPENING
+========================= -->
+
+<div class="opening" id="opening">
+
+    <div class="opening-content">
+
+        <div class="small-title">
+            DIGITAL PHOTOBOOTH
+        </div>
+
+        <h1>
+            Our Little<br>
+            Memories
+        </h1>
+
+        <p>
+            A tiny collection of moments<br>
+            I never want to forget.
+        </p>
+
+        <button
+            class="enter-btn"
+            onclick="enterSite()"
+        >
+            ENTER
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     MAIN WEBSITE
+========================= -->
+
+<main class="main">
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <span>
+            A COLLECTION OF US
+        </span>
+
+        <h2>
+            Our Little Photobooth
+        </h2>
+
+    </header>
+
+
+
+    <!-- MAIN PHOTO -->
+
+    <div class="photo-wrapper">
+
+        <div class="photo-frame">
+
+            <img
+                id="mainPhoto"
+                src=""
+                alt="Memory"
+            >
+
+            <div
+                class="photo-number"
+                id="photoNumber"
+            >
+                01 / 04
+            </div>
+
+        </div>
+
+
+        <div
+            class="caption"
+            id="caption"
+        >
+            Loading memory...
+        </div>
+
+    </div>
+
+
+
+    <!-- NAVIGATION -->
+
+    <div class="navigation">
+
+        <button
+            class="nav-btn prev-btn"
+            onclick="previousPhoto()"
+        >
+            ← PREV
+        </button>
+
+
+        <div
+            class="counter"
+            id="counter"
+        >
+            01 / 04
+        </div>
+
+
+        <button
+            class="nav-btn next-btn"
+            onclick="nextPhoto()"
+        >
+            NEXT →
+        </button>
+
+    </div>
+
+
+
+    <!-- FILM STRIP -->
+
+    <div class="section-title">
+        PHOTO STRIP
+    </div>
+
+
+    <div
+        class="film-strip"
+        id="filmStrip"
+    ></div>
+
+
+
+    <!-- ENDING -->
+
+    <section class="ending">
+
+        <span>
+            THE LAST FRAME
+        </span>
+
+        <h3>
+            Still my favorite.
+        </h3>
+
+        <p>
+            Four little pictures, countless memories,
+            and somehow I still want to make more with you.
+        </p>
+
+    </section>
+
+
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+        MADE WITH TOO MANY FEELINGS
+    </footer>
+
+
+</main>
+
+
+
+<script>
+
+
+/* =====================================================
+   YOUR PHOTOS
+===================================================== */
+
+const memories = [
+
+    {
+        image:
+        "https://i.ibb.co/SDfd5ZmH/a8606669ddc8263a5ae201feab5c9171.jpg",
+
+        caption:
+        "A moment I wish I could keep forever."
+    },
+
+
+    {
+        image:
+        "https://i.ibb.co/bMwHTMp1/1ecaa610429000c637bf2c3cbe0729aa.jpg",
+
+        caption:
+        "One of those moments that just feels right."
+    },
+
+
+    {
+        image:
+        "https://i.ibb.co/gFdX4vZv/c374f031a1ad23b45f79f9c42991c93b.jpg",
+
+        caption:
+        "You looked beautiful here. I had to keep this one."
+    },
+
+
+    {
+        image:
+        "https://i.ibb.co/DDHt3yTh/c9c530874afad4d463e3b2ba796ad19e.jpg",
+
+        caption:
+        "And somehow, I still want more memories like this."
+    }
+
+];
+
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let currentPhoto = 0;
+
+
+const mainPhoto =
+document.getElementById("mainPhoto");
+
+
+const caption =
+document.getElementById("caption");
+
+
+const counter =
+document.getElementById("counter");
+
+
+const photoNumber =
+document.getElementById("photoNumber");
+
+
+const filmStrip =
+document.getElementById("filmStrip");
+
+
+
+/* =====================================================
+   ENTER WEBSITE
+===================================================== */
+
+function enterSite() {
+
+    document
+        .getElementById("opening")
+        .classList
+        .add("hide");
+
+}
+
+
+
+/* =====================================================
+   LOAD PHOTO
+===================================================== */
+
+function loadPhoto(index) {
+
+    const photo =
+        memories[index];
+
+
+    mainPhoto.classList.add("fade");
+
+
+    setTimeout(() => {
+
+        mainPhoto.src =
+            photo.image;
+
+
+        caption.textContent =
+            photo.caption;
+
+
+        const number =
+            String(index + 1)
+            .padStart(2, "0");
+
+
+        const total =
+            String(memories.length)
+            .padStart(2, "0");
+
+
+        counter.textContent =
+            `${number} / ${total}`;
+
+
+        photoNumber.textContent =
+            `${number} / ${total}`;
+
+
+        mainPhoto.classList.remove("fade");
+
+
+        updateFilmStrip();
+
+    }, 250);
+
+}
+
+
+
+/* =====================================================
+   NEXT PHOTO
+===================================================== */
+
+function nextPhoto() {
+
+    currentPhoto++;
+
+
+    if (
+        currentPhoto >= memories.length
+    ) {
+
+        currentPhoto = 0;
+
+    }
+
+
+    loadPhoto(currentPhoto);
+
+}
+
+
+
+/* =====================================================
+   PREVIOUS PHOTO
+===================================================== */
+
+function previousPhoto() {
+
+    currentPhoto--;
+
+
+    if (currentPhoto < 0) {
+
+        currentPhoto =
+            memories.length - 1;
+
+    }
+
+
+    loadPhoto(currentPhoto);
+
+}
+
+
+
+/* =====================================================
+   CREATE FILM STRIP
+===================================================== */
+
+function createFilmStrip() {
+
+    filmStrip.innerHTML = "";
+
+
+    memories.forEach(
+        (memory, index) => {
+
+            const div =
+                document.createElement("div");
+
+
+            div.className =
+                "film-photo";
+
+
+            div.innerHTML = `
+                <img
+                    src="${memory.image}"
+                    alt="Memory ${index + 1}"
+                >
+            `;
+
+
+            div.onclick = () => {
+
+                currentPhoto =
+                    index;
+
+                loadPhoto(
+                    currentPhoto
+                );
+
+            };
+
+
+            filmStrip.appendChild(div);
+
+        }
+    );
+
+
+    updateFilmStrip();
+
+}
+
+
+
+/* =====================================================
+   UPDATE ACTIVE PHOTO
+===================================================== */
+
+function updateFilmStrip() {
+
+    const photos =
+        document.querySelectorAll(
+            ".film-photo"
+        );
+
+
+    photos.forEach(
+        (photo, index) => {
+
+            photo.classList.toggle(
+                "active",
+                index === currentPhoto
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   START WEBSITE
+===================================================== */
+
+createFilmStrip();
+
+loadPhoto(0);
+
+
+</script>
+
+</body>
+</html>
